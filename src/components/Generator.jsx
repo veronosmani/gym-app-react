@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import SectionWrapper from "./SectionWrapper";
 import { SCHEMES, WORKOUTS } from "../utils/swoldier";
+import { ssrModuleExportsKey } from "vite/runtime";
+import Button from "./Button";
 
 function Header(props) {
   const { index, title, description } = props;
@@ -28,22 +30,26 @@ export default function Generator() {
   }
 
   function updateMuscles(muscleGroup) {
-    if (muscles.length > 2) {
+    if (muscles.includes(muscleGroup)){
+        setMuscles(muscles.filter(val => val !== muscleGroup))
+        return
+    }
+
+    if (muscles.length > 3) {
         return
     }
 
     if (poison !== 'individual') {
         setMuscles([muscleGroup])
-        return
-    }
-
-    if (muscles.includes(muscleGroup)) {
-        setMuscles(muscles.filter(val => val !== muscleGroup))
+        setShowModal(false)
         return
     }
 
     setMuscles([...muscles, muscleGroup])
-  }
+    if (muscles.length === 3){
+        setShowModal(false)
+    }
+}
 
   return (
     <SectionWrapper
@@ -60,6 +66,7 @@ export default function Generator() {
           return (
             <button
               onClick={() => {
+                setMuscles([]);
                 setPoison(type);
               }}
               className={
@@ -84,23 +91,35 @@ export default function Generator() {
           onClick={toggleModal}
           className="relative p-3 flex items-center justify-center"
         >
-          <p>Select muscle groups</p>
+          <p className="capitalize">{muscles.length === 0 ? 'Select muscle groups' : muscles.join(" ")}</p>
           <i className="fa-solid absolute right-3 top-1/2 -translate-y-1/2 fa-caret-down"></i>
         </button>
         {showModal && (
           <div className="flex flex-col p-3">
             {poison === "individual"
               ? WORKOUTS[poison]
-              : Object.keys(WORKOUTS[poison]).map((muscleGroup, muscleGroupIndex) => {
-                return (
-                    <button onClick={() =>{
-                        updateMuscles(muscleGroup)
-                    }
-                    } key={muscleGroupIndex} className={'hover:text-blue-400 duration-200' + (muscles.includes(muscleGroup) ? 'text-blue-400':' ')}>
-                        <p className="uppercase">{muscleGroup.replaceAll("_", " ")}</p>
-                    </button>
-                )
-              })}
+              : Object.keys(WORKOUTS[poison]).map(
+                  (muscleGroup, muscleGroupIndex) => {
+                    return (
+                      <button
+                        onClick={() => {
+                          updateMuscles(muscleGroup)
+                        }}
+                        key={muscleGroupIndex}
+                        className={
+                          "hover:text-blue-400 duration-200" +
+                          (muscles.includes(muscleGroup)
+                            ? "text-blue-400"
+                            : " ")
+                        }
+                      >
+                        <p className="uppercase">
+                          {muscleGroup.replaceAll("_", " ")}
+                        </p>
+                      </button>
+                    );
+                  }
+                )}
           </div>
         )}
       </div>
@@ -128,6 +147,8 @@ export default function Generator() {
           );
         })}
       </div>
+      <Button text={"Formulate"}></Button>
+
     </SectionWrapper>
   );
 }

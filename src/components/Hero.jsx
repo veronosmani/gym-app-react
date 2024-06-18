@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "./Button";
 
 export default function () {
   return (
@@ -19,9 +20,7 @@ export default function () {
         <span className="text-blue-400 font-medium">mass montrosity</span>,
         afflicted with severe body dismporhia, unable to fit through doors.
       </p>
-      <button className="px-8 py-4 rounded-medium border-[2px] bg-slate-950 border-blue-400 border-solid border blueShadow duration-200">
-        <p>Accept & Begin</p>
-      </button>
+        <Button text={"Accept & Begin"}></Button>
     </div>
   );
 }
